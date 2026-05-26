@@ -4,7 +4,6 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
-import Link from '@tiptap/extension-link';
 import { useCallback } from 'react';
 
 interface RichTextEditorProps {
@@ -35,12 +34,6 @@ export default function RichTextEditor({
       }),
       Image.configure({ inline: false }),
       Placeholder.configure({ placeholder }),
-      Link.configure({
-        openOnClick: false,
-        HTMLAttributes: {
-          class: 'text-primary-600 dark:text-primary-400 underline',
-        },
-      }),
     ],
     content,
     onUpdate: ({ editor }) => {
@@ -66,22 +59,6 @@ export default function RichTextEditor({
   if (typeof window !== 'undefined' && editor) {
     (window as any).__editorInsertImage = insertImage;
   }
-
-  const setLink = useCallback(() => {
-    if (!editor) return;
-
-    const previousUrl = editor.getAttributes('link').href;
-    const url = window.prompt('URL do link:', previousUrl);
-
-    if (url === null) return;
-
-    if (url === '') {
-      editor.chain().focus().extendMarkRange('link').unsetLink().run();
-      return;
-    }
-
-    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
-  }, [editor]);
 
   if (!editor) return null;
 
@@ -188,17 +165,6 @@ export default function RichTextEditor({
         </ToolbarButton>
 
         <Divider />
-
-        {/* Link */}
-        <ToolbarButton
-          onClick={setLink}
-          active={editor.isActive('link')}
-          label="Inserir link"
-        >
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
-          </svg>
-        </ToolbarButton>
 
         {/* Image */}
         <ToolbarButton
