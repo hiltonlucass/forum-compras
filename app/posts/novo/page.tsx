@@ -6,6 +6,7 @@ import RichTextEditor from '@/components/RichTextEditor';
 import ImageUploader from '@/components/ImageUploader';
 import Toast from '@/components/Toast';
 import AuthGuard from '@/components/AuthGuard';
+import TagInput from '@/components/TagInput';
 import { supabase } from '@/lib/supabase';
 import { generateExcerpt } from '@/lib/helpers';
 
@@ -36,6 +37,7 @@ function NovoPostContent() {
   const [content, setContent] = useState('');
   const [categoryId, setCategoryId] = useState<number | null>(null);
   const [images, setImages] = useState<UploadedImage[]>([]);
+  const [tags, setTags] = useState<string[]>([]);
   const [pinned, setPinned] = useState(false);
   const [isDraft, setIsDraft] = useState(false);
 
@@ -133,6 +135,22 @@ function NovoPostContent() {
         .single();
 
       if (insertError) throw insertError;
+
+      // Salvar tags
+      if (tags.length > 0 && post) {
+        for (const tagName of tags) {
+          // Upsert tag
+          const { data: tagData } = await supabase
+            .from('tags')
+            .upsert({ nome: tagName }, { onConflict: 'nome' })
+            .select('id')
+            .single();
+
+          if (tagData) {
+            await supabase.from('post_tags').insert({ post_id: post.id, tag_id: tagData.id });
+          }
+        }
+      }
 
       // Salvar imagens vinculadas ao post
       if (images.length > 0 && post) {
@@ -257,6 +275,14 @@ function NovoPostContent() {
           {errors.category && (
             <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.category}</p>
           )}
+        </div>
+
+        {/* Tags */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Tags
+          </label>
+          <TagInput selectedTags={tags} onChange={setTags} />
         </div>
 
         {/* Conteúdo */}

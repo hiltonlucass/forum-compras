@@ -9,6 +9,8 @@ import UserAvatar from '@/components/UserAvatar';
 import Reactions from '@/components/Reactions';
 import Comments from '@/components/Comments';
 import ImageLightbox from '@/components/ImageLightbox';
+import ExportPDF from '@/components/ExportPDF';
+import PostHistory from '@/components/PostHistory';
 
 interface PostData {
   id: string;
@@ -220,6 +222,8 @@ export default function PostPage() {
               </svg>
               Excluir
             </button>
+            <ExportPDF postId={post.id} title={post.titulo} />
+            <PostHistory postId={post.id} />
           </div>
         )}
       </div>

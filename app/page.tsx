@@ -8,6 +8,7 @@ import { formatDate } from '@/lib/helpers';
 import CategoryBadge from '@/components/CategoryBadge';
 import EmptyState from '@/components/EmptyState';
 import { PostListSkeleton } from '@/components/LoadingSkeleton';
+import AdvancedSearch from '@/components/AdvancedSearch';
 
 interface PostItem {
   id: string;
@@ -42,14 +43,23 @@ export default function HomePage() {
   const currentPage = Number(searchParams.get('page') || '1');
   const currentSearch = searchParams.get('q') || '';
   const showPinned = searchParams.get('fixados') === '1';
+  const currentAuthor = searchParams.get('author') || '';
+  const currentDateFrom = searchParams.get('from') || '';
+  const currentDateTo = searchParams.get('to') || '';
+  const currentTag = searchParams.get('tag') || '';
 
   const [posts, setPosts] = useState<PostItem[]>([]);
   const [categories, setCategories] = useState<CategoryCount[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState(currentSearch);
 
   const totalPages = Math.ceil(totalCount / POSTS_PER_PAGE);
+
+  function highlightText(text: string, query: string): string {
+    if (!query) return text;
+    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    return text.replace(regex, '<mark class="bg-accent-100 dark:bg-accent-900/30 text-accent-700 dark:text-accent-300 rounded px-0.5">$1</mark>');
+  }
 
   const fetchPosts = useCallback(async () => {
     setLoading(true);
@@ -73,6 +83,14 @@ export default function HomePage() {
 
     if (currentSearch) {
       query = query.or(`titulo.ilike.%${currentSearch}%,conteudo.ilike.%${currentSearch}%`);
+    }
+
+    // Filtro por data
+    if (currentDateFrom) {
+      query = query.gte('criado_em', currentDateFrom);
+    }
+    if (currentDateTo) {
+      query = query.lte('criado_em', `${currentDateTo}T23:59:59`);
     }
 
     // Ordenação
@@ -144,7 +162,7 @@ export default function HomePage() {
 
     setPosts(enrichedPosts);
     setLoading(false);
-  }, [currentCategory, currentSort, currentPage, currentSearch, showPinned]);
+  }, [currentCategory, currentSort, currentPage, currentSearch, showPinned, currentAuthor, currentDateFrom, currentDateTo, currentTag]);
 
   const fetchCategories = useCallback(async () => {
     const { data: cats } = await supabase
@@ -187,11 +205,6 @@ export default function HomePage() {
     return `/?${sp.toString()}`;
   }
 
-  function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    router.push(buildUrl({ q: search || null, page: null }));
-  }
-
   function getExcerpt(html: string, max = 120): string {
     const text = html.replace(/<[^>]+>/g, '');
     return text.length > max ? text.slice(0, max).trim() + '...' : text;
@@ -199,21 +212,8 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* Mobile Search */}
-      <form onSubmit={handleSearch} className="mb-4">
-        <div className="relative">
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar posts..."
-            className="w-full pl-9 pr-3 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
-          />
-          <svg className="absolute left-3 top-3 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </div>
-      </form>
+      {/* Advanced Search */}
+      <AdvancedSearch />
 
       {/* Header */}
       <div className="flex items-center justify-between mb-6">

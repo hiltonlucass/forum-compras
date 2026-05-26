@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import ThemeToggle from './ThemeToggle';
 import UserAvatar from './UserAvatar';
+import Notifications from './Notifications';
 import { supabase } from '@/lib/supabase';
 
 export default function Header() {
@@ -85,6 +86,7 @@ export default function Header() {
             </Link>
             <div className="w-px h-5 bg-gray-200 dark:bg-gray-700 mx-1" />
             <ThemeToggle />
+            <Notifications />
             {user ? (
               <Link href="/perfil" className="ml-1">
                 <UserAvatar name={user.name} avatarUrl={user.avatar} size="sm" />
