@@ -12,7 +12,7 @@
     "@supabase/supabase-js": "^2.39.0",
     "@tailwindcss/typography": "^0.5.19",
     "@tiptap/extension-image": "^2.1.13",
-    "@tiptap/extension-link": "^3.23.6",
+    "@tiptap/extension-link": "^2.27.2",
     "@tiptap/extension-placeholder": "^2.1.13",
     "@tiptap/pm": "^2.1.13",
     "@tiptap/react": "^2.1.13",
