@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import Footer from '@/components/Footer';
 import AuthSync from '@/components/AuthSync';
+import KeepAlive from '@/components/KeepAlive';
 import { Suspense } from 'react';
 
 const sora = Sora({
@@ -48,6 +49,7 @@ export default function RootLayout({
       </head>
       <body className={`${sora.variable} ${dmSans.variable} font-body`}>
         <AuthSync />
+        <KeepAlive />
         <div className="min-h-screen flex flex-col">
           <Header />
           <div className="flex flex-1 w-full">
